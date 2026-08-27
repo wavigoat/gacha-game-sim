@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>lalala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     Palette: midnight arcade
+     --ink        #12101c  (background, deep violet-black)
+     --panel      #1c1830  (panel surfaces)
+     --panel-lite #262143  (raised panel surfaces)
+     --line       #372f5c  (hairline borders)
+     --paper      #f3efe6  (light text / labels)
+     --dim        #9089b8  (secondary text)
+     --coin       #ffd166  (star/currency accent)
+     --common     #9aa3b2  (silver)
+     --rare       #5ec8ff  (blue neon)
+     --ultra      #ff6ec7  (magenta/gold shimmer paired with --coin)
+     Type: Baloo 2 (display, rounded/toylike -> capsule-toy energy)
+           Inter (UI body)
+           Space Mono (numbers / counters, arcade ticket-readout feel)
+     ============================================================ */
+  :root{
+    --ink:#12101c;
+    --panel:#1c1830;
+    --panel-lite:#262143;
+    --line:#372f5c;
+    --paper:#f3efe6;
+    --dim:#9089b8;
+    --coin:#ffd166;
+    --common:#9aa3b2;
+    --rare:#5ec8ff;
+    --ultra:#ff6ec7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, #241f3f 0%, transparent 45%),
+      radial-gradient(circle at 85% 10%, #2a1f3f 0%, transparent 40%),
+      var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding:28px 16px 64px;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .logo{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:800;
+    font-size:28px;
+    letter-spacing:0.5px;
+    color:var(--paper);
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .logo span{
+    font-size:13px;
+    font-family:'Space Mono',monospace;
+    color:var(--dim);
+    font-weight:400;
+    letter-spacing:2px;
+  }
+  .star-counter{
+    font-family:'Space Mono',monospace;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:9px 18px;
+    font-size:17px;
+    font-weight:700;
+    color:var(--coin);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    box-shadow:0 0 0 4px rgba(255,209,102,0.05);
+  }
+
+  /* ---------- section shell ---------- */
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:20px;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--dim);
+    margin:0 0 12px 0;
+  }
+
+  /* ---------- clicker ---------- */
+  .clicker-row{
+    display:flex;
+    align-items:center;
+    gap:20px;
+  }
+  .clicker-img-wrap{
+    position:relative;
+    flex-shrink:0;
+  }
+  #clickerImg{
+    width:96px;height:96px;
+    border-radius:20px;
+    object-fit:cover;
+    cursor:pointer;
+    border:2px solid var(--line);
+    background:var(--panel-lite);
+    transition:transform .08s ease;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+  #clickerImg:active{transform:scale(0.9);}
+  .clicker-text{flex:1;}
+  .clicker-text p{margin:0 0 10px 0;color:var(--dim);font-size:14px;line-height:1.5;}
+  .file-btn{
+    display:inline-block;
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    color:var(--paper);
+    background:var(--panel-lite);
+    border:1px solid var(--line);
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .file-btn:hover{background:#322b57;}
+  .file-btn input{display:none;}
+  .floater{
+    position:absolute;
+    top:-6px; left:50%;
+    transform:translateX(-50%);
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    color:var(--coin);
+    pointer-events:none;
+    animation:float-up .7s ease-out forwards;
+    font-size:15px;
+    white-space:nowrap;
+  }
+  @keyframes float-up{
+    0%{opacity:1; transform:translate(-50%,0);}
+    100%{opacity:0; transform:translate(-50%,-46px);}
+  }
+
+  /* ---------- roll buttons ---------- */
+  .roll-row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .roll-btn{
+    flex:1;
+    min-width:170px;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    color:var(--ink);
+    background:var(--coin);
+    border:none;
+    border-radius:12px;
+    padding:16px 12px;
+    cursor:pointer;
+    transition:transform .1s ease, filter .15s ease;
+    box-shadow:0 4px 0 #c9a13f;
+  }
+  .roll-btn.secondary{
+    background:var(--panel-lite);
+    color:var(--paper);
+    box-shadow:0 4px 0 #17132a;
+    border:1px solid var(--line);
+  }
+  .roll-btn:hover:not(:disabled){filter:brightness(1.08);}
+  .roll-btn:active:not(:disabled){transform:translateY(3px); box-shadow:0 1px 0 #c9a13f;}
+  .roll-btn.secondary:active:not(:disabled){box-shadow:0 1px 0 #17132a;}
+  .roll-btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .roll-btn small{display:block; font-family:'Space Mono',monospace; font-weight:400; font-size:11px; opacity:0.75; margin-top:2px;}
+
+  /* ---------- reveal stage ---------- */
+  .stage{
+    position:relative;
+    height:360px;
+    padding:14px;
+    box-sizing:border-box;
+    background:
+      repeating-linear-gradient(135deg, #1a1630 0px, #1a1630 14px, #191529 14px, #191529 28px);
+    border:1px dashed var(--line);
+    border-radius:16px;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .stage-hint{
+    color:var(--dim);
+    font-family:'Space Mono',monospace;
+    font-size:13px;
+    text-align:center;
+    padding:0 20px;
+  }
+  .tap-hint{
+    color:var(--dim);
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.5px;
+  }
+  .capsule-box{
+    width:110px;
+    height:140px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    animation:capsule-shake 1.6s infinite;
+  }
+  .capsule-box img{
+    max-width:100%;
+    max-height:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,0.5));
+  }
+  .capsule-box.common img{
+    filter:grayscale(1) brightness(0.95) sepia(1) hue-rotate(62deg) saturate(4) drop-shadow(0 8px 14px rgba(0,0,0,0.5));
+  }
+  .capsule-box.rare img{
+    filter:grayscale(1) brightness(0.95) sepia(1) hue-rotate(178deg) saturate(4.5) drop-shadow(0 8px 14px rgba(0,0,0,0.5));
+  }
+  .capsule-box.ultrarare img{
+    filter:grayscale(1) brightness(0.92) sepia(1) hue-rotate(248deg) saturate(5) drop-shadow(0 8px 14px rgba(0,0,0,0.5));
+  }
+  .explosion-box{
+    width:220px;
+    height:220px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .explosion-box img{
+    max-width:100%;
+    max-height:100%;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+  }
+  @keyframes capsule-shake{
+    0%, 55%, 100%{transform:rotate(0deg) translateY(0);}
+    63%{transform:rotate(-6deg) translateY(-2px);}
+    72%{transform:rotate(6deg) translateY(-4px);}
+    81%{transform:rotate(-5deg) translateY(-2px);}
+    90%{transform:rotate(3deg) translateY(0);}
+  }
+  .flash{
+    position:absolute; inset:0;
+    background:#fff;
+    animation:flash-anim 0.35s ease-out forwards;
+  }
+  @keyframes flash-anim{
+    0%{opacity:0.95;}
+    100%{opacity:0;}
+  }
+  .result-single{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    animation:pop-in 0.35s ease-out;
+  }
+  @keyframes pop-in{
+    0%{transform:scale(0.5); opacity:0;}
+    70%{transform:scale(1.08); opacity:1;}
+    100%{transform:scale(1);}
+  }
+  .result-img{
+    width:120px;height:120px;
+    border-radius:14px;
+    object-fit:cover;
+    border:3px solid var(--common);
+  }
+  .result-img.rare{border-color:var(--rare); box-shadow:0 0 22px rgba(94,200,255,0.45);}
+  .result-img.ultrarare{border-color:var(--ultra); box-shadow:0 0 26px rgba(255,110,199,0.55);}
+  .result-name{font-family:'Baloo 2',sans-serif; font-weight:700; font-size:19px;}
+  .badge{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    padding:3px 10px;
+    border-radius:999px;
+    font-weight:700;
+  }
+  .badge.common{background:rgba(154,163,178,0.18); color:var(--common);}
+  .badge.rare{background:rgba(94,200,255,0.15); color:var(--rare);}
+  .badge.ultrarare{background:rgba(255,110,199,0.15); color:var(--ultra);}
+
+  .result-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    grid-template-rows:repeat(2, 1fr);
+    gap:8px;
+    width:100%;
+    height:100%;
+    animation:pop-in 0.3s ease-out;
+  }
+  .result-cell{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    min-height:0;
+    min-width:0;
+  }
+  .result-cell img{
+    width:100%;
+    flex:1 1 0;
+    min-height:0;
+    border-radius:8px;
+    object-fit:cover;
+    border:2px solid var(--common);
+  }
+  .result-cell img.rare{border-color:var(--rare); box-shadow:0 0 10px rgba(94,200,255,0.4);}
+  .result-cell img.ultrarare{border-color:var(--ultra); box-shadow:0 0 12px rgba(255,110,199,0.5);}
+  .result-cell .cell-name{
+    flex:0 0 auto;
+    font-size:9.5px;
+    text-align:center;
+    color:var(--paper);
+    font-weight:600;
+    line-height:1.15;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .result-cell .cell-rarity{
+    flex:0 0 auto;
+    font-family:'Space Mono',monospace;
+    font-size:8px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+  .result-cell .cell-rarity.common{color:var(--common);}
+  .result-cell .cell-rarity.rare{color:var(--rare);}
+  .result-cell .cell-rarity.ultrarare{color:var(--ultra);}
+  .result-cell.capsule-cell{cursor:pointer;}
+  .result-cell.capsule-cell:hover .capsule-mini{filter-value:none; transform:scale(1.04);}
+  .capsule-mini{
+    width:100%;
+    flex:1 1 0;
+    min-height:0;
+    object-fit:contain !important;
+    border:none !important;
+    box-shadow:none !important;
+    animation:capsule-shake 1.6s infinite;
+    transition:transform .1s ease;
+  }
+  .capsule-mini.common{
+    filter:grayscale(1) brightness(0.95) sepia(1) hue-rotate(62deg) saturate(4);
+  }
+  .capsule-mini.rare{
+    filter:grayscale(1) brightness(0.95) sepia(1) hue-rotate(178deg) saturate(4.5);
+  }
+  .capsule-mini.ultrarare{
+    filter:grayscale(1) brightness(0.92) sepia(1) hue-rotate(248deg) saturate(5);
+  }
+  .result-cell .explosion-mini{
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .result-cell .explosion-mini img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    border:none;
+  }
+
+  /* ---------- collection ---------- */
+  .collection-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(78px,1fr));
+    gap:10px;
+  }
+  .coll-item{
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    padding:8px 4px;
+    border-radius:12px;
+    background:var(--panel-lite);
+    border:1px solid var(--line);
+  }
+  .coll-item img{
+    width:56px;height:56px;
+    border-radius:10px;
+    object-fit:cover;
+    border:2px solid var(--common);
+  }
+  .coll-item img.rare{border-color:var(--rare);}
+  .coll-item img.ultrarare{border-color:var(--ultra);}
+  .coll-item.locked img{filter:grayscale(1) brightness(0.35);}
+  .coll-item.locked{opacity:0.55;}
+  .coll-item .cname{font-size:10.5px; text-align:center; font-weight:600; line-height:1.2;}
+  .coll-item.owned img{cursor:grab;}
+  .coll-item .count{
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    color:var(--dim);
+  }
+
+  /* ---------- display case ---------- */
+  .case-controls{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:12px; flex-wrap:wrap; gap:10px;
+  }
+  .case-box{
+    position:relative;
+    height:190px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background-color:#231d3d;
+    background-image:var(--case-bg, url('https://img.freepik.com/premium-photo/crowd-clapping-concert_582637-6888.jpg?w=2000'));
+    background-size:cover;
+    background-position:center;
+    display:flex;
+    align-items:center;
+    justify-content:space-evenly;
+    padding:14px;
+  }
+  .case-slot{
+    width:100px; height:100px;
+    border-radius:14px;
+    border:2px dashed rgba(243,239,230,0.4);
+    background:rgba(18,16,28,0.35);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    transition:border-color .15s, background .15s;
+  }
+  .case-slot.dragover{
+    border-color:var(--coin);
+    background:rgba(255,209,102,0.15);
+  }
+  .case-slot img{
+    width:100%; height:100%;
+    object-fit:cover;
+    border-radius:12px;
+  }
+  .case-slot .slot-label{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    color:rgba(243,239,230,0.55);
+  }
+  .case-slot .remove-x{
+    position:absolute; top:-8px; right:-8px;
+    width:22px; height:22px;
+    border-radius:50%;
+    background:var(--ink);
+    border:1px solid var(--line);
+    color:var(--paper);
+    font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+
+  h2.section-title{
+    font-family:'Baloo 2',sans-serif;
+    font-size:18px;
+    margin:0 0 12px 0;
+    display:flex; align-items:center; gap:8px;
+  }
+  .empty-note{color:var(--dim); font-size:13px; font-family:'Space Mono',monospace;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">bulba gacha machine</div>
+    <div class="star-counter">★ <span id="starCount">500</span></div>
+  </header>
+
+  <!-- ===================== CLICKER ===================== -->
+  <section class="panel">
+    <p class="eyebrow">Star Generator</p>
+    <div class="clicker-row">
+      <div class="clicker-img-wrap" id="clickerWrap">
+        <img id="clickerImg" src="https://f2.toyhou.se/file/f2-toyhou-se/images/126537786_L2JCr83Nj1lkZKX.png" alt="clicker">
+      </div>
+      <div class="clicker-text">
+        <p>Click the icon to earn <strong style="color:var(--coin)">★100</strong> per tap.</p>
+        <label class="file-btn">Swap image
+          <input type="file" accept="image/*" id="clickerUpload">
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== ROLL BUTTONS ===================== -->
+  <section class="panel">
+    <p class="eyebrow">Draw</p>
+    <div class="roll-row">
+      <button class="roll-btn" id="roll1Btn">Roll ×1<small>★ 100</small></button>
+      <button class="roll-btn secondary" id="roll10Btn">Roll ×10<small>★ 1000</small></button>
+    </div>
+  </section>
+
+  <!-- ===================== REVEAL STAGE ===================== -->
+  <section class="panel">
+    <p class="eyebrow">Results</p>
+    <div class="stage" id="stage">
+      <div class="stage-hint">roll to see what you get smiles</div>
+    </div>
+  </section>
+
+  <!-- ===================== COLLECTION ===================== -->
+  <section class="panel">
+    <h2 class="section-title">🗂 Collection <span class="empty-note" id="collCount">(0 / 0 discovered)</span></h2>
+    <div class="collection-grid" id="collectionGrid"></div>
+  </section>
+
+  <!-- ===================== DISPLAY CASE ===================== -->
+  <section class="panel">
+    <div class="case-controls">
+      <h2 class="section-title" style="margin:0;">Display Case</h2>
+      <label class="file-btn">Change Background
+        <input type="file" accept="image/*" id="caseBgUpload">
+      </label>
+    </div>
+    <div class="case-box" id="caseBox">
+      <div class="case-slot" data-slot="0"><span class="slot-label">drag here</span></div>
+      <div class="case-slot" data-slot="1"><span class="slot-label">drag here</span></div>
+      <div class="case-slot" data-slot="2"><span class="slot-label">drag here</span></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const GACHA_POOL = [
+  // ---- common ----
+  { name: "Charlie", image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/7072639?1684937874", rarity: "common" },
+  { name: "Daisy Bell", image: " https://f2.toyhou.se/file/f2-toyhou-se/images/116661212_HbHXxSaWmAA65v8.png", rarity: "common" },
+  { name: "Fable", image: "https://images.artfight.net/character/th_xiILzpqtChv3pU6wxCJ6tQ2ktX39kPsUpivII52O5uujMcbxT8lVqqAE7qgu.png?t=1782522812",      rarity: "common" },
+  { name: "Ophy", image: "https://f2.toyhou.se/file/f2-toyhou-se/images/49348508_8xCNDCa3Un1Mf25.png", rarity: "common" },
+  { name: "Metal Pipe", image: "https://i.kym-cdn.com/entries/icons/original/000/043/027/metalpipefalling.jpg", rarity: "common" },
+  { name: "Tissue", image: "https://media.istockphoto.com/photos/crumpled-tissue-picture-id478693660?k=20&m=478693660&s=612x612&w=0&h=6tfc6XZ4szM0okhjR1znDuNUgFp7dfTYFmUZFSyIonM=", rarity: "common" },
+  { name: "Red Ball", image: "https://img.freepik.com/premium-photo/red-ball-with-white-background_842224-504.jpg", rarity: "common" },
+  { name: "AIBU",   image: "https://f2.toyhou.se/file/f2-toyhou-se/images/126537812_wG5zA271wVCVoig.png", rarity: "common" },
+  { name: "Pikachu",   image: "https://img.pokemondb.net/artwork/avif/pikachu.avif", rarity: "common" },
+  { name: "Bulbasaur",     image: "https://img.pokemondb.net/artwork/large/bulbasaur.jpg",     rarity: "common" },
+  { name: "Terriermon",     image: "https://static.wikia.nocookie.net/digimon/images/d/d1/Terriermon_b.jpg/revision/latest/thumbnail/width/360/height/360?cb=20130402191057",     rarity: "common" },
+  { name: "Skylar",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/3722911?1654165509",     rarity: "common" },
+  { name: "Feliz",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/2254029?1690917807",     rarity: "common" },
+  { name: "Deedee",     image: "https://f2.toyhou.se/file/f2-toyhou-se/thumbnails/89922899_KiU_29721873.png?1728984756",     rarity: "common" },
+  { name: "Captain Copper",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/21152311?1779495069",     rarity: "common" },
+  { name: "Ribber",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/3090602?1779495079",     rarity: "common" },
+  { name: "Athena",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/24039129?1779495089",     rarity: "common" },
+  { name: "Dr Risk",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/23308499?1779495099",     rarity: "common" },
+  { name: "Ezra",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/23967211?1779495123",     rarity: "common" },
+  { name: "Basil",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/29077755?1753083613",     rarity: "common" },
+
+  // ---- rare ----
+  { name: "Lara (very polite)",    image: "https://pbs.twimg.com/media/HO0YTdoW8AEjcQh.jpg", rarity: "rare" },
+  { name: "Chiikawa",   image: "https://static.wikia.nocookie.net/chiikawa/images/2/2c/AdorableCutieChiikawa.png/revision/latest?cb=20240709065538", rarity: "rare" },
+  { name: "Therapy",   image: "https://f2.toyhou.se/file/f2-toyhou-se/images/102201229_kdc42LnBzA7jsNz.png", rarity: "rare" },
+  { name: "Isaac",   image: "https://static.wikia.nocookie.net/bindingofisaacre_gamepedia/images/e/e5/Character_Isaac_appearance.png/revision/latest?cb=20231008190524", rarity: "rare" },
+  { name: "Job Application",   image: "https://images.docformats.net/wp-content/uploads/2025/04/Job-Application-Form-Template-Google-Docs-Word-Page-01.png?strip=all&lossy=1&quality=90&webp=90&sharp=1&ssl=1", rarity: "rare" },
+  { name: "Monsoon",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/26218639?1737792955",     rarity: "rare" },
+  { name: "Petrichor",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/34085107?1758623381",     rarity: "rare" },
+  { name: "Eggsby",     image: "https://f2.toyhou.se/file/f2-toyhou-se/thumbnails/122412314_IXH.png",     rarity: "rare" },
+
+  // ---- ultrarare ----
+  { name: "Wulf",   image: "https://f2.toyhou.se/file/f2-toyhou-se/images/76530173_yafVdVAGhIBWqYA.png",   rarity: "ultrarare" },
+  { name: "YURI",     image: "https://ih1.redbubble.net/image.5412856127.8415/raf,360x360,075,t,fafafa:ca443f4786.jpg",     rarity: "ultrarare" },
+  { name: "YAOI",     image: "https://i.pinimg.com/736x/eb/92/94/eb9294216160df69bc531980c9be868c.jpg",     rarity: "ultrarare" },
+  { name: "Daelyn",     image: "https://f2.toyhou.se/file/f2-toyhou-se/images/108005987_TLm6kVaicxI01uq.png",     rarity: "ultrarare" },
+  { name: "Buttface",     image: "https://f2.toyhou.se/file/f2-toyhou-se/characters/22345834?1688672338",     rarity: "ultrarare" },
+];
+
+
+const RARITY_WEIGHTS = { common: 80, rare: 19, ultrarare: 1 };
+const RARITY_LABEL = { common: "Common", rare: "Rare", ultrarare: "Ultra Rare" };
+const CAPSULE_IMG = "https://f2.toyhou.se/file/f2-toyhou-se/images/126613387_7klrynsUyHeiAcX.png";
+const EXPLOSION_GIF = "https://media.tenor.com/NJqk_2_eQ40AAAAi/explosion-gif-transparent.gif";
+
+let stars = 500;
+let owned = {};
+let caseSlots = [null, null, null];
+
+const starCountEl = document.getElementById('starCount');
+const stage = document.getElementById('stage');
+const collectionGrid = document.getElementById('collectionGrid');
+const collCount = document.getElementById('collCount');
+const caseBox = document.getElementById('caseBox');
+
+function setStars(n){
+  stars = n;
+  starCountEl.textContent = stars;
+  document.getElementById('roll1Btn').disabled = stars < 100;
+  document.getElementById('roll10Btn').disabled = stars < 1000;
+}
+
+// clicker
+const clickerImg = document.getElementById('clickerImg');
+const clickerWrap = document.getElementById('clickerWrap');
+
+clickerImg.addEventListener('click', () => {
+  setStars(stars + 100);
+  const f = document.createElement('div');
+  f.className = 'floater';
+  f.textContent = '+100 ★';
+  clickerWrap.appendChild(f);
+  setTimeout(() => f.remove(), 700);
+});
+
+document.getElementById('clickerUpload').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { clickerImg.src = reader.result; };
+  reader.readAsDataURL(file);
+});
+
+// gacha
+function pickRarity(){
+  const r = Math.random() * 100;
+  if (r < RARITY_WEIGHTS.common) return 'common';
+  if (r < RARITY_WEIGHTS.common + RARITY_WEIGHTS.rare) return 'rare';
+  return 'ultrarare';
+}
+
+function pickItem(){
+  const rarity = pickRarity();
+  const pool = GACHA_POOL.filter(i => i.rarity === rarity);
+  // fallback in case a rarity tier is empty
+  const usablePool = pool.length ? pool : GACHA_POOL;
+  return usablePool[Math.floor(Math.random() * usablePool.length)];
+}
+
+function grantItem(item){
+  if (!owned[item.name]) {
+    owned[item.name] = { item, count: 0 };
+  }
+  owned[item.name].count += 1;
+}
+
+function wait(ms){ return new Promise(res => setTimeout(res, ms)); }
+
+function renderSingleResult(item){
+  stage.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'result-single';
+  wrap.innerHTML = `
+    <img class="result-img ${item.rarity}" src="${item.image}" alt="${item.name}">
+    <div class="result-name">${item.name}</div>
+    <span class="badge ${item.rarity}">${RARITY_LABEL[item.rarity]}</span>
+  `;
+  stage.appendChild(wrap);
+}
+
+
+
+async function doRoll(count, cost){
+  if (stars < cost) return;
+  setStars(stars - cost);
+  document.getElementById('roll1Btn').disabled = true;
+  document.getElementById('roll10Btn').disabled = true;
+
+  const results = [];
+  for (let i = 0; i < count; i++){
+    results.push(pickItem());
+  }
+
+  if (count === 1){
+    renderSingleCapsule(results[0]);
+  } else {
+    renderCapsuleGrid(results);
+  }
+}
+
+function renderSingleCapsule(item){
+  stage.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.style.display = 'flex';
+  wrap.style.flexDirection = 'column';
+  wrap.style.alignItems = 'center';
+  wrap.style.gap = '10px';
+  wrap.style.cursor = 'pointer';
+  wrap.innerHTML = `
+    <div class="capsule-box ${item.rarity}"><img src="${CAPSULE_IMG}" alt="unopened capsule"></div>
+    <div class="tap-hint">Tap to open</div>
+  `;
+
+  wrap.addEventListener('click', async () => {
+    stage.innerHTML = '';
+    const box = document.createElement('div');
+    box.className = 'explosion-box';
+    const gif = document.createElement('img');
+    gif.src = EXPLOSION_GIF;
+    box.appendChild(gif);
+    stage.appendChild(box);
+    await wait(900);
+
+    grantItem(item);
+    renderSingleResult(item);
+    renderCollection();
+    setStars(stars);
+  }, { once: true });
+
+  stage.appendChild(wrap);
+}
+
+function renderCapsuleGrid(results){
+  stage.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'result-grid';
+
+  let openedCount = 0;
+
+  results.forEach((item) => {
+    const cell = document.createElement('div');
+    cell.className = 'result-cell capsule-cell';
+    cell.innerHTML = `
+      <img class="capsule-mini ${item.rarity}" src="${CAPSULE_IMG}" alt="unopened capsule">
+      <div class="cell-name">Tap to open</div>
+    `;
+
+    cell.addEventListener('click', async () => {
+      cell.classList.remove('capsule-cell');
+      cell.style.cursor = 'default';
+      cell.innerHTML = `<div class="explosion-mini"><img src="${EXPLOSION_GIF}" alt=""></div>`;
+      await wait(600);
+
+      grantItem(item);
+      cell.innerHTML = `
+        <img class="${item.rarity}" src="${item.image}" alt="${item.name}">
+        <div class="cell-name">${item.name}</div>
+        <div class="cell-rarity ${item.rarity}">${RARITY_LABEL[item.rarity]}</div>
+      `;
+      renderCollection();
+
+      openedCount++;
+      if (openedCount === results.length){
+        setStars(stars);
+      }
+    }, { once: true });
+
+    grid.appendChild(cell);
+  });
+
+  stage.appendChild(grid);
+}
+
+document.getElementById('roll1Btn').addEventListener('click', () => doRoll(1, 100));
+document.getElementById('roll10Btn').addEventListener('click', () => doRoll(10, 1000));
+
+// display collection
+function renderCollection(){
+  collectionGrid.innerHTML = '';
+  const discoveredNames = Object.keys(owned);
+
+  if (discoveredNames.length === 0){
+    collectionGrid.innerHTML = `<span class="empty-note">...</span>`;
+  } else {
+    discoveredNames.forEach(name => {
+      const entry = owned[name];
+      const item = entry.item;
+      const div = document.createElement('div');
+      div.className = 'coll-item owned';
+      div.innerHTML = `
+        <img class="${item.rarity}" src="${item.image}" alt="${item.name}" draggable="true">
+        <div class="cname">${item.name}</div>
+        <div class="count">x${entry.count}</div>
+      `;
+      div.querySelector('img').addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', item.name);
+      });
+      collectionGrid.appendChild(div);
+    });
+  }
+
+  collCount.textContent = `(${discoveredNames.length} / ${GACHA_POOL.length} discovered)`;
+}
+
+// display case
+document.querySelectorAll('.case-slot').forEach(slot => {
+  slot.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    slot.classList.add('dragover');
+  });
+  slot.addEventListener('dragleave', () => slot.classList.remove('dragover'));
+  slot.addEventListener('drop', (e) => {
+    e.preventDefault();
+    slot.classList.remove('dragover');
+    const name = e.dataTransfer.getData('text/plain');
+    const entry = owned[name];
+    if (!entry) return;
+    const idx = Number(slot.dataset.slot);
+    caseSlots[idx] = entry.item;
+    renderCase();
+  });
+});
+
+function renderCase(){
+  document.querySelectorAll('.case-slot').forEach(slot => {
+    const idx = Number(slot.dataset.slot);
+    const item = caseSlots[idx];
+    if (item){
+      slot.innerHTML = `<img src="${item.image}" alt="${item.name}"><span class="remove-x" title="Remove">✕</span>`;
+      slot.querySelector('.remove-x').addEventListener('click', () => {
+        caseSlots[idx] = null;
+        renderCase();
+      });
+    } else {
+      slot.innerHTML = `<span class="slot-label">drag here</span>`;
+    }
+  });
+}
+
+document.getElementById('caseBgUpload').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    caseBox.style.setProperty('--case-bg', `url(${reader.result})`);
+  };
+  reader.readAsDataURL(file);
+});
+
+setStars(stars);
+renderCollection();
+renderCase();
+</script>
+</body>
+</html>
